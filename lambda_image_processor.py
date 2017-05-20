@@ -24,9 +24,9 @@ def lambda_handler(event, context):
         # print 'Hello, {0}!'.format(context.aws_request_id)
         print 'Hello, {0}!'.format('context.aws_request_id')
         job_id = str(uuid.uuid4())
-        process_message(message.body, job_id)
+        download_url = process_message(message.body, job_id)
 
-        response = OUTPUTQ.send_message(MessageBody=message.body)
+        response = OUTPUTQ.send_message(MessageBody=download_url)
         print response
         # Let the queue know that the message is processed
         message.delete()
@@ -55,8 +55,9 @@ def process_message(message, job_id):
         print 'upload file '+output_image_path
         S3.Object(BUCKET_NAME, output_image_name).put(Body=open(output_image_path, 'rb'))
         print 'upload done'
-        download_url = "https://s3.amazonaws.com/%s/%s" % (BUCKET_NAME,output_image_name)
-        
+        download_url = "https://s3.amazonaws.com/%s/%s" % (BUCKET_NAME, output_image_name)
+        return download_url
+
         # Write the resulting image to s3
 		#output_url = write_image_to_s3(output_image_path, output_image_name, s3_output_bucket, s3_endpoint)
 
